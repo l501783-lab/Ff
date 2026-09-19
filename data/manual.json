@@ -1,0 +1,95 @@
+{
+  "_readme": "沒有穩定免費 API 的指標放這裡。每次更新請改 value 與 as_of，並保留 source。as_of 超過 stale_after_days 會被標記為過期，但不會消失。",
+  "_stale_after_days": {
+    "weekly": 14,
+    "monthly": 45,
+    "quarterly": 130,
+    "event": 400
+  },
+  "indicators": {
+    "hyperscaler_coverage": {
+      "value": 1.9,
+      "as_of": "2026-07-31",
+      "source": "券商公開發行報告彙整。2 月約 5x、7 月不到 2x。",
+      "comment": "下次更新請填最近一筆 GPU 擔保或超大規模業者發債案的覆蓋倍數。"
+    },
+    "clo_aaa_spread": {
+      "value": null,
+      "as_of": null,
+      "source": "券商研究或 LCD / Creditflux 公開摘要",
+      "comment": "尚未填入。日本買盤是主要驅動，建議與日本對外證券投資一起看。"
+    },
+    "effective_default_rate": {
+      "value": 7.9,
+      "as_of": "2025-12-31",
+      "source": "評等機構年度報告，含 LME（負債管理操作）。同期名目違約率 2.5%。",
+      "comment": "每季更新。名目與含 LME 兩個數字都要記，差距本身就是訊號。"
+    },
+    "fund_gating": {
+      "value": 0,
+      "as_of": "2026-09-18",
+      "source": "新聞",
+      "comment": "任何高收益或私募信貸型基金暫停贖回時填 1。"
+    },
+    "hy_primary_market": {
+      "value": 0,
+      "as_of": "2026-09-18",
+      "source": "新聞或券商週報",
+      "comment": "連續兩週無新發行時填 1。"
+    },
+    "move_index": {
+      "value": null,
+      "as_of": null,
+      "source": "公開行情",
+      "comment": "尚未填入。"
+    },
+    "tw_cpi": {
+      "value": 2.04,
+      "as_of": "2026-08-31",
+      "source": "行政院主計總處。7 月為 2.52%，已連續四個月超過 2%。核心 CPI 2.3%。",
+      "comment": "每月上旬公布。"
+    },
+    "tw_deposit_rate_1y": {
+      "value": 1.7,
+      "as_of": "2026-09-17",
+      "source": "臺灣銀行一年期定存牌告利率（近似值）",
+      "comment": "供 tw_real_deposit 計算用，本身不單獨顯示。"
+    },
+    "tw_property_loan_ratio": {
+      "value": 34.44,
+      "as_of": "2026-07-31",
+      "source": "中央銀行第 3 季理監事會新聞稿。2024/6 高點 37.61%，2026/3 為 35.56%。",
+      "comment": "2026/9/18 起第二戶貸款成數由 6 成放寬至 7 成，之後幾季的走向是關鍵。"
+    },
+    "tw_m1b": {
+      "value": null,
+      "as_of": null,
+      "source": "中央銀行金融統計月報",
+      "comment": "尚未填入。"
+    },
+    "tw_margin_balance": {
+      "value": null,
+      "as_of": null,
+      "source": "臺灣證券交易所",
+      "comment": "尚未填入。門檻請依自己判讀的歷史區間調整後再啟用。"
+    },
+    "tw_export_orders": {
+      "value": null,
+      "as_of": null,
+      "source": "經濟部統計處",
+      "comment": "尚未填入。這是台灣組裡最重要的一項。"
+    },
+    "cb_gold_buying": {
+      "value": 216,
+      "as_of": "2025-12-31",
+      "source": "世界黃金協會。2025 年全年 863 公噸，四季平均約 216。",
+      "comment": "每季更新。2021–25 年平均每季約 225 公噸。"
+    },
+    "japan_foreign_securities": {
+      "value": -4.0,
+      "as_of": "2026-09-05",
+      "source": "日本財務省對外及對內證券投資。2026 年以來累計淨賣出約 4 兆日圓。",
+      "comment": "每週四公布。負值為淨賣出。"
+    }
+  }
+}

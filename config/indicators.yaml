@@ -1,0 +1,384 @@
+# 指標與門檻定義
+#
+# direction: higher_is_worse | lower_is_worse
+# scale:     [min, max] 只影響畫面軌道，不影響判定
+# watch:     接近門檻
+# trigger:   觸發門檻
+# 留空 watch / trigger 表示純參考指標，不判定狀態
+#
+# 改動門檻會留下 commit 紀錄。這是刻意的。
+
+groups:
+  - id: credit
+    name: 信用市場
+    blurb: 信用循環從最邊緣的借款人開始裂，指數會把它平均掉。看分散度，不看指數。
+    indicators:
+      - id: hy_oas
+        name: 高收益債 OAS
+        source: fred
+        series: BAMLH0A0HYM2
+        unit: bp
+        transform: pct_to_bp
+        direction: higher_is_worse
+        scale: [200, 1200]
+        watch: 450
+        trigger: 600
+        cadence: weekly
+        note: 350 以下為後期自滿；600 以上為壓力；800 以上歷史上伴隨衰退。2007/6/1 的 241bp 是史上最低，緊接著就是金融海嘯。
+
+      - id: ccc_oas
+        name: CCC 級 OAS
+        source: fred
+        series: BAMLH0A3HYC
+        unit: bp
+        transform: pct_to_bp
+        direction: higher_is_worse
+        scale: [400, 2200]
+        watch: 800
+        trigger: 1000
+        cadence: weekly
+        note: 邊際借款人先斷。800 以上即為歷史上伴隨衰退的區間。
+
+      - id: bb_oas
+        name: BB 級 OAS
+        source: fred
+        series: BAMLH0A1HYBB
+        unit: bp
+        transform: pct_to_bp
+        direction: higher_is_worse
+        scale: [120, 800]
+        watch: 350
+        trigger: 500
+        cadence: weekly
+        note: 優質高收益。BB 開始跟上 CCC，代表壓力正在往上蔓延——那才是真正的轉折。
+
+      - id: ccc_bb_spread
+        name: CCC 減 BB 差值
+        source: derived
+        formula: ccc_bb_spread
+        unit: bp
+        direction: higher_is_worse
+        scale: [200, 1400]
+        watch: 600
+        trigger: 800
+        cadence: weekly
+        note: 本工具最重要的單一指標。2026 年 9 月初 CCC 位於 52 週區間的 97%，BB 位於 0%——同一個市場的兩端。
+
+      - id: ig_oas
+        name: 投資級 OAS
+        source: fred
+        series: BAMLC0A0CM
+        unit: bp
+        transform: pct_to_bp
+        direction: higher_is_worse
+        scale: [60, 400]
+        watch: 120
+        trigger: 150
+        cadence: weekly
+        note: 核心是否受傳染。投資級跟著擴大，代表壓力已離開最脆弱的那一層。
+
+      - id: hy_1m_change
+        name: HY OAS 單月變動
+        source: derived
+        formula: hy_1m_change
+        unit: bp
+        direction: higher_is_worse
+        scale: [-100, 250]
+        watch: 60
+        trigger: 100
+        cadence: weekly
+        note: 速度比水準重要。2007 年真正的訊號是六週擴大 187bp，而當時 428bp 的水準還低於 20 年均值。
+
+  - id: rates
+    name: 利率與曲線
+    blurb: 判斷壓力在短端（貨幣政策）還是長端（財政風險），看形狀不看水準。
+    indicators:
+      - id: dgs2
+        name: 2 年期公債
+        source: fred
+        series: DGS2
+        unit: '%'
+        direction: higher_is_worse
+        scale: [0, 7]
+        cadence: weekly
+
+      - id: dgs10
+        name: 10 年期公債
+        source: fred
+        series: DGS10
+        unit: '%'
+        direction: higher_is_worse
+        scale: [0, 8]
+        cadence: weekly
+
+      - id: dgs30
+        name: 30 年期公債
+        source: fred
+        series: DGS30
+        unit: '%'
+        direction: higher_is_worse
+        scale: [0, 8]
+        watch: 5.5
+        trigger: 6.0
+        cadence: weekly
+        note: 全球估值模型的折現率底層。
+
+      - id: curve_direction
+        name: 曲線形狀（20 日）
+        source: derived
+        formula: curve_direction
+        unit: bp
+        direction: lower_is_worse
+        scale: [-80, 80]
+        watch: -20
+        trigger: -40
+        cadence: weekly
+        note: 2 年期變動減 10 年期變動。正值＝短端主導，貨幣政策重新定價。負值＝長端主導，財政風險溢價。
+
+      - id: real_overnight
+        name: 隔夜實質利率
+        source: derived
+        formula: real_overnight
+        unit: '%'
+        direction: lower_is_worse
+        scale: [-3, 3]
+        watch: 0.2
+        trigger: 0.0
+        cadence: monthly
+        note: 有效聯邦資金利率減 CPI 年增率。轉負即符合金融抑制的定義性特徵——而它可以在聯準會什麼都不做的情況下被動發生。
+
+      - id: tips10
+        name: 10 年期 TIPS 實質殖利率
+        source: fred
+        series: DFII10
+        unit: '%'
+        direction: higher_is_worse
+        scale: [-1.5, 3.5]
+        cadence: weekly
+        note: 黃金的傳統機會成本。2022–2025 年這個關係失效（R² 從 84% 掉到 3%），2026 年部分回歸。
+
+      - id: breakeven10
+        name: 10 年期損益兩平通膨率
+        source: fred
+        series: T10YIE
+        unit: '%'
+        direction: higher_is_worse
+        scale: [1, 4]
+        watch: 2.8
+        trigger: 3.2
+        cadence: weekly
+        note: 市場定價的通膨預期。它往上走，是抑制最早的訊號之一。
+
+  - id: dollar
+    name: 美元與日本
+    blurb: 利率升而美元跌，是市場對主權要求風險補償——不是利率問題，是信用問題。
+    indicators:
+      - id: usd_yield_corr
+        name: 美元與殖利率相關性（60 日）
+        source: derived
+        formula: usd_yield_corr
+        unit: ''
+        direction: lower_is_worse
+        scale: [-1, 1]
+        watch: 0.1
+        trigger: -0.1
+        cadence: weekly
+        note: 全工具最乾淨的判準。正＝利率升美元升＝正常化。負＝利率升美元跌＝主權風險溢價。
+
+      - id: usd_broad
+        name: 廣義美元指數
+        source: fred
+        series: DTWEXBGS
+        unit: ''
+        direction: lower_is_worse
+        scale: [95, 135]
+        cadence: weekly
+
+      - id: usdjpy
+        name: 美元兌日圓
+        source: fred
+        series: DEXJPUS
+        unit: ''
+        direction: higher_is_worse
+        scale: [120, 170]
+        watch: 158
+        trigger: 165
+        cadence: weekly
+        note: 弱日圓會逼日本賣美債來干預。強日圓則讓資金以自己的節奏回流。
+
+      - id: jgb10
+        name: 日本 10 年期公債
+        source: fred
+        series: IRLTLT01JPM156N
+        unit: '%'
+        direction: higher_is_worse
+        scale: [0, 4]
+        watch: 2.5
+        trigger: 3.0
+        cadence: monthly
+        note: 日本機構認為國內債券重新有吸引力的門檻約在 1.75%。已遠遠越過。日本持有約 1 兆美元美債、約四分之一的美國 CLO AAA 分券。
+
+  - id: ai_credit
+    name: AI 建設融資
+    blurb: 歷史上崩盤幾乎從不來自技術失敗，而來自融資結構。
+    indicators:
+      - id: hyperscaler_coverage
+        name: 超大規模業者債券覆蓋倍數
+        source: manual
+        unit: x
+        direction: lower_is_worse
+        scale: [0.5, 6]
+        watch: 2.0
+        trigger: 1.5
+        cadence: quarterly
+        note: 2026 年 2 月約 5 倍，7 月不到 2 倍。相當於 2000 年的現金燃燒率。
+
+      - id: clo_aaa_spread
+        name: CLO AAA 利差
+        source: manual
+        unit: bp
+        direction: higher_is_worse
+        scale: [80, 400]
+        watch: 180
+        trigger: 250
+        cadence: monthly
+        note: 日本銀行持有約四分之一的美國 CLO AAA 分券；CLO 買走美國對垃圾評等公司放款的一半以上。
+
+      - id: effective_default_rate
+        name: 含 LME 之實質違約率
+        source: manual
+        unit: '%'
+        direction: higher_is_worse
+        scale: [0, 18]
+        watch: 9
+        trigger: 10
+        cadence: quarterly
+        note: 2025 年名目 2.5%，含 LME 為 7.9%。名目數字在這個週期已失去參考價值。
+
+      - id: fund_gating
+        name: 信用型基金贖回狀態
+        source: manual
+        unit: ''
+        type: boolean
+        direction: higher_is_worse
+        trigger: 1
+        cadence: event
+        note: 2015 年 12 月 Third Avenue 停止贖回時，HY OAS 約在 800bp 出頭，不是 2000bp。資金被卡住的時點比崩盤早得多。
+
+      - id: hy_primary_market
+        name: 高收益初級市場
+        source: manual
+        unit: ''
+        type: boolean
+        direction: higher_is_worse
+        trigger: 1
+        cadence: weekly
+        note: 連續兩週無新發行時填 1。2018 年 12 月整月零發行，是 2008 年 11 月以來第一次。市場關門不是價格問題，是門開不開的問題。
+
+      - id: move_index
+        name: MOVE 指數
+        source: manual
+        unit: ''
+        direction: higher_is_worse
+        scale: [50, 200]
+        watch: 120
+        trigger: 150
+        cadence: weekly
+        note: 債券市場波動率。飆升會同時壓縮造市能力與各市場流動性。
+
+  - id: taiwan
+    name: 台灣
+    blurb: 負實質利率不決定泡沫會不會發生，它決定錢往哪裡去——流向最容易加槓桿的資產。
+    indicators:
+      - id: tw_cpi
+        name: 台灣 CPI 年增率
+        source: manual
+        unit: '%'
+        direction: higher_is_worse
+        scale: [0, 5]
+        watch: 2.0
+        trigger: 2.5
+        cadence: monthly
+        note: 2026 年 8 月 2.04%，連續四個月破 2%。
+
+      - id: tw_real_deposit
+        name: 一年期定存實質利率
+        source: derived
+        formula: tw_real_deposit
+        unit: '%'
+        direction: lower_is_worse
+        scale: [-2, 2]
+        watch: 0.0
+        trigger: -0.5
+        cadence: monthly
+        note: 定存牌告利率減 CPI 年增率。目前約 −0.34%。
+
+      - id: tw_property_loan_ratio
+        name: 銀行不動產放款占總放款比
+        source: manual
+        unit: '%'
+        direction: higher_is_worse
+        scale: [30, 40]
+        watch: 35.5
+        trigger: 36.5
+        cadence: quarterly
+        note: 2024 年 6 月高點 37.61%，2026 年 7 月降至 34.44%。2026/9/18 起第二戶貸款成數由 6 成放寬至 7 成——若此數字重新上升，代表管制鬆綁已反映在放款上。
+
+      - id: tw_m1b
+        name: M1B 年增率
+        source: manual
+        unit: '%'
+        direction: higher_is_worse
+        scale: [-5, 25]
+        watch: 8
+        trigger: 12
+        cadence: monthly
+        note: 1986–90 年泡沫最直接的溫度計。資金活水的代理變數。
+
+      - id: tw_margin_balance
+        name: 融資餘額
+        source: manual
+        unit: 億元
+        direction: higher_is_worse
+        scale: [1500, 5000]
+        watch: 3500
+        trigger: 4200
+        cadence: monthly
+        note: 1990 年那次，融資是燃料。門檻請依自己判讀的歷史區間調整。
+
+      - id: tw_export_orders
+        name: 外銷訂單年增率
+        source: manual
+        unit: '%'
+        direction: lower_is_worse
+        scale: [-30, 60]
+        watch: 5
+        trigger: 0
+        cadence: monthly
+        note: 最重要的台灣指標。1988–89 年出口成長只剩 1.4% 與 0.9%，股市又漲了 18 個月才見頂——基本面先垮，市場後跌，中間的落差是一年半。
+
+  - id: gold
+    name: 黃金與主權需求
+    blurb: 實質利率決定節奏，主權買盤決定地板。要判斷哪一層在主導，看誰在買。
+    indicators:
+      - id: cb_gold_buying
+        name: 央行季度淨購金量
+        source: manual
+        unit: 公噸
+        direction: lower_is_worse
+        scale: [0, 400]
+        watch: 180
+        trigger: 125
+        cadence: quarterly
+        note: 2021–25 年平均每季 225 公噸，約為前五年的兩倍。若明顯放緩，黃金會回歸傳統的實質利率框架。
+
+      - id: japan_foreign_securities
+        name: 日本對外證券投資（月累計）
+        source: manual
+        unit: 兆日圓
+        direction: lower_is_worse
+        scale: [-6, 6]
+        watch: -2
+        trigger: -4
+        cadence: weekly
+        note: 負值為淨賣出。2026 年以來累計淨賣出約 4 兆日圓，且遍及歷來最穩定的政府相關投資人。

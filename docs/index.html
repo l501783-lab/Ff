@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>門檻監控</title>
+<meta name="description" content="事先寫下的總體與信用市場門檻，每週比對一次。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%2315191C'/><rect x='3' y='7' width='10' height='2' fill='%23FCFCFA'/><rect x='10' y='4' width='2' height='8' fill='%239E3226'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <h1>門檻監控</h1>
+    <p class="standfirst">事前寫下的觸發條件，今天有沒有被碰到。<br>這裡不預測，也不給建議。</p>
+    <p class="tally" id="tally" aria-live="polite">讀取中…</p>
+    <p class="stamp" id="stamp"></p>
+  </div>
+</header>
+
+<main class="wrap" id="groups">
+  <p class="loading">讀取 data.json…</p>
+</main>
+
+<footer class="wrap">
+  <p>門檻定義在 <code>config/indicators.yaml</code>，改動會留下 commit 紀錄——這是刻意的。指標轉向時先降低該部位權重，不要一次全部反轉。單一數據點不構成訊號，要看是否連續兩期以上同方向。</p>
+  <p class="disclaimer">本頁為公開資料的整理與門檻比對，不構成投資建議、買賣要約或任何財務、稅務、法律意見。資料可能延遲、錯誤或中斷。門檻由使用者自行設定，合理性自負。投資有風險，可能損失全部本金。</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
